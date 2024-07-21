@@ -7,6 +7,7 @@ RUN pip install -r requirements.txt
 COPY forms.py main.py models.py .
 
 VOLUME /var/db/simple_whish
+VOLUME /var/secrets
 EXPOSE 80/tcp
 
 CMD ["gunicorn", "--bind=0.0.0.0:80", "main:app"]

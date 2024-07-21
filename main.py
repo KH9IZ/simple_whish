@@ -1,3 +1,4 @@
+from pathlib import Path
 from authlib.integrations.flask_client import OAuth
 from flask import (
     Flask,
@@ -16,18 +17,24 @@ from models import (
     create_tables,
 )
 
+
+def get_secret(secret_name: str) -> str:
+    file_path = Path(f'/run/secrets/{secret_name}')
+    if not file_path.is_file():
+        raise ValueError(f"No such secret file {file_path}")
+    return file_path.read_text().strip()
+
+
 app = Flask(__name__)
-# with open('/run/secrets/FLASK_SECRET_KEY') as f:
-#     app.config["SECRET_KEY"] = f.read()
-app.config["SECRET_KEY"] = 'the random string'
+app.config["SECRET_KEY"] = get_secret("FLASK_SECRET_KEY")
 
 create_tables()
 
 oauth = OAuth(app)
 oauth.register(
     name="yandex",
-    client_id="9f6516d5a74148f2b509ef4370a03170",
-    client_secret="aa686babf09f415abc0505624d6a6a8c",
+    client_id=get_secret("OAUTH_CLIENT_ID"),
+    client_secret=get_secret("OAUTH_CLIENT_SECRET"),
     authorize_url="https://oauth.yandex.ru/authorize",
     access_token_url="https://oauth.yandex.ru/token",
     api_base_url="https://login.yandex.ru",
